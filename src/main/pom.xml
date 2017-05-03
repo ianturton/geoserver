@@ -237,6 +237,16 @@
          <groupId>org.codehaus.jettison</groupId>
          <artifactId>jettison</artifactId>
      </dependency>
+     <dependency>
+     	<groupId>org.geotools</groupId>
+     	<artifactId>gt-wmts</artifactId>
+     	<version>${gt.version}</version>
+     </dependency>
+     <dependency>
+     	<groupId>org.geoserver.community</groupId>
+     	<artifactId>gs-wmts</artifactId>
+     	<version>${gs.version}</version>
+     </dependency>
  </dependencies>
 
  <build>

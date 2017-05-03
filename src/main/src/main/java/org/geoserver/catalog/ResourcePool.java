@@ -93,6 +93,8 @@ import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.data.store.ContentState;
 import org.geotools.data.wms.WebMapServer;
 import org.geotools.data.wms.xml.WMSSchema;
+import org.geotools.data.wmts.WMTSCapabilities;
+import org.geotools.data.wmts.WebMapTileServer;
 import org.geotools.factory.Hints;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.FeatureTypes;
@@ -202,6 +204,7 @@ public class ResourcePool {
     Map<String, FeatureType> featureTypeCache;
     Map<String, List<AttributeTypeInfo>> featureTypeAttributeCache;
     Map<String, WebMapServer> wmsCache;
+    Map<String, WebMapTileServer> wmtsCache;
     Map<String, GridCoverageReader>  coverageReaderCache;
     Map<CoverageHintReaderKey, GridCoverageReader> hintCoverageReaderCache;
     Map<StyleInfo,Style> styleCache;
@@ -209,6 +212,7 @@ public class ResourcePool {
     ThreadPoolExecutor coverageExecutor;
     CatalogRepository repository;
     EntityResolverProvider entityResolverProvider;
+    
 
     /**
      * Creates a new instance of the resource pool explicitly supplying the application 
@@ -1848,7 +1852,7 @@ public class ResourcePool {
     public void clear( WMSStoreInfo info ) {
         wmsCache.remove( info.getId() );
     }
-    
+
     /**
      * Returns a style resource, caching the result. Any associated images should
      * also be unpacked onto the local machine. ResourcePool will watch the style
@@ -2252,7 +2256,26 @@ public class ResourcePool {
         }
 
     }
-    
+    class WMTSCache extends CatalogResourceCache<String, WebMapTileServer> {
+
+        @Override
+        protected void dispose(String key, WebMapTileServer server) {
+            HTTPClient client = server.getHTTPClient();
+            if (client instanceof Closeable) {
+                // dispose the client, and the connection pool hosted into it as a consequence
+                // the connection pool additionally holds a few threads that are also getting
+                // disposed with this call
+                Closeable closeable = (Closeable) client;
+                try {
+                    closeable.close();
+                } catch (IOException e) {
+                    LOGGER.log(Level.FINE,
+                            "Failure while disposing the http client for a WMS store", e);
+                }
+            }
+        }
+
+    }
     /**
      * Listens to catalog events clearing cache entires when resources are modified.
      */
@@ -2615,4 +2638,70 @@ public class ResourcePool {
         }
         return info;
     }
+
+    /**
+     * @param wmtsStoreInfoImpl
+     * @return
+     * @throws IOException 
+     */
+    public WebMapTileServer getWebMapTileServer(WMTSStoreInfo info) throws IOException {
+        WMTSStoreInfo expandedStore = (WMTSStoreInfo) clone(info, true);
+        
+        try {
+            EntityResolver entityResolver = getEntityResolver();
+            
+            String id = info.getId();
+            WebMapTileServer wmts = wmtsCache.get(id);
+            // if we have a hit but the resolver has been changed, clean and build again
+            if(wmts != null && wmts.getHints() != null && !Objects.equals(wmts.getHints().get(XMLHandlerHints.ENTITY_RESOLVER), entityResolver)) {
+                wmtsCache.remove(id);
+                wmts = null;
+            }
+            if (wmts == null) {
+                synchronized (wmtsCache) {
+                    wmts = (WebMapTileServer) wmtsCache.get(id);
+                    if (wmts == null) {
+                        String capabilitiesURL = expandedStore.getCapabilitiesURL();
+                        URL serverURL = new URL(capabilitiesURL);
+                        wmts = (WebMapTileServer) new WebMapTileServer(serverURL);
+                        wmtsCache.put(id, wmts);
+                    }
+                }
+            }
+
+            return wmts;
+        } catch (IOException ioe) {
+            throw ioe;
+        } catch (Exception e) {
+            throw (IOException) new IOException().initCause(e);
+        }
+    }
+
+    /**
+     * @param wmtsLayerInfoImpl 
+     * @return
+     * @throws IOException 
+     */
+    public Layer getWMTSLayer(WMTSLayerInfo info) throws IOException {
+     // check which actual name we have to use
+        String name = info.getName();
+        if (info.getNativeName() != null) {
+            name = info.getNativeName();
+        }
+
+        WMTSCapabilities caps = null;
+        
+        caps = info.getStore().getWebMapTileServer(null).getCapabilities();
+        
+        for (Layer layer : caps.getLayerList()) {
+            if (name.equals(layer.getName())) {
+                return layer;
+            }
+        }
+
+        throw new IOException("Could not find layer " + info.getName()
+                + " in the server capabilitiles document");
+    }
+
+
 }
