@@ -26,12 +26,10 @@ import org.geoserver.util.EntityResolverProvider;
 import org.geoserver.web.data.layer.NewLayerPage;
 import org.geotools.data.ows.HTTPClient;
 import org.geotools.data.ows.SimpleHttpClient;
-import org.geotools.data.wms.xml.WMSSchema;
 import org.geotools.data.wmts.WebMapTileServer;
 import org.geotools.ows.ServiceException;
 import org.geotools.xml.DocumentFactory;
 import org.geotools.xml.XMLHandlerHints;
-import org.geotools.xml.handlers.DocumentHandler;
 import org.xml.sax.EntityResolver;
 
 @SuppressWarnings("serial")
@@ -80,7 +78,7 @@ public class WMTSStoreNewPage extends AbstractWMTSStorePage {
         } catch (RuntimeException e) {
             LOGGER.log(Level.INFO, "Adding the store for " + info.getCapabilitiesURL(), e);
             throw new IllegalArgumentException(
-                    "The WMS store could not be saved. Failure message: " + e.getMessage());
+                    "The WMTS store could not be saved. Failure message: " + e.getMessage());
         }
 
         // the StoreInfo save succeeded... try to present the list of coverages (well, _the_
@@ -121,7 +119,7 @@ public class WMTSStoreNewPage extends AbstractWMTSStorePage {
                     client.setPassword(pwd);
                 }
                 Map<String, Object> hints = new HashMap<>();
-                hints.put(DocumentHandler.DEFAULT_NAMESPACE_HINT_KEY, WMSSchema.getInstance());
+              
                 hints.put(DocumentFactory.VALIDATION_HINT, Boolean.FALSE);
                 EntityResolverProvider provider = getCatalog().getResourcePool().getEntityResolverProvider();
                 if(provider != null) {

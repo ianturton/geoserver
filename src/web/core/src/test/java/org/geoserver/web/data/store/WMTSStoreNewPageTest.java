@@ -91,12 +91,13 @@ public class WMTSStoreNewPageTest extends GeoServerWicketTestSupport {
         form.setValue("capabilitiesURL:border:border_body:paramValue", "http://foo");
 
         tester.clickLink("form:save", true);
-        tester.assertErrorMessages("Connection test failed: foo");
+        tester.assertErrorMessages("WMTSCapabilitiesValidator.connectionFailure"
+);
         catalog.save(info);
 
         assertNotNull(info.getId());
 
-        WMSStoreInfo expandedStore = catalog.getResourcePool().clone(info, true);
+        WMTSStoreInfo expandedStore = (WMTSStoreInfo) catalog.getResourcePool().clone(info, true);
 
         assertNotNull(expandedStore.getId());
         assertNotNull(expandedStore.getCatalog());
@@ -112,8 +113,9 @@ public class WMTSStoreNewPageTest extends GeoServerWicketTestSupport {
         assertNull(page.getDefaultModelObject());
 
         final Catalog catalog = getCatalog();
-        WMTSStoreInfo info = (WMTSStoreInfo) getCatalog().getFactory().createWebMapServer();
-        URL url = getClass().getResource("WMTSGetCapabilities");
+        WMTSStoreInfo info = (WMTSStoreInfo) getCatalog().getFactory().createWebMapTileServer();
+        URL url = getClass().getResource("WMTSGetCapabilities.xml");
+        assertNotNull(url);
         info.setName("bar");
 
         tester.assertNoErrorMessage();

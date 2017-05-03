@@ -16,10 +16,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.RangeValidator;
-import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
-import org.geoserver.platform.GeoServerEnvironment;
-import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.web.ComponentAuthorizer;
 import org.geoserver.web.GeoServerSecuredPage;
 import org.geoserver.web.data.store.panel.CheckBoxParamPanel;
@@ -62,13 +59,13 @@ abstract class AbstractWMTSStorePage extends GeoServerSecuredPage {
         // name
         PropertyModel nameModel = new PropertyModel(model, "name");
         final TextParamPanel namePanel = new TextParamPanel("namePanel", nameModel,
-                new ResourceModel("AbstractWMSStorePage.dataSrcName", "Data Source Name"), true);
+                new ResourceModel("AbstractWMTSStorePage.dataSrcName", "Data Source Name"), true);
 
         form.add(namePanel);
 
         // description and enabled
         form.add(new TextParamPanel("descriptionPanel", new PropertyModel(model,
-                "description"), new ResourceModel("AbstractWMSStorePage.description", "Description"), false));
+                "description"), new ResourceModel("AbstractWMTSStorePage.description", "Description"), false));
         form.add(new CheckBoxParamPanel("enabledPanel", new PropertyModel(model, "enabled"),
                 new ResourceModel("enabled", "Enabled")));
         // a custom converter will turn this into a namespace url
@@ -84,26 +81,26 @@ abstract class AbstractWMTSStorePage extends GeoServerSecuredPage {
         // user name
         PropertyModel userModel = new PropertyModel(model, "username");
         usernamePanel = new TextParamPanel("userNamePanel", userModel, new ResourceModel(
-                "AbstractWMSStorePage.userName"), false);
+                "AbstractWMTSStorePage.userName"), false);
 
         form.add(usernamePanel);
 
         // password
         PropertyModel passwordModel = new PropertyModel(model, "password");
         form.add(password = new PasswordParamPanel("passwordPanel", passwordModel, new ResourceModel(
-                "AbstractWMSStorePage.password"), false));
+                "AbstractWMTSStorePage.password"), false));
         
         // max concurrent connections
         final PropertyModel<Boolean> useHttpConnectionPoolModel = new PropertyModel<Boolean>(model,
                 "useConnectionPooling");
         CheckBoxParamPanel useConnectionPooling = new CheckBoxParamPanel(
                 "useConnectionPoolingPanel", useHttpConnectionPoolModel, new ResourceModel(
-                        "AbstractWMSStorePage.useHttpConnectionPooling"));
+                        "AbstractWMTSStorePage.useHttpConnectionPooling"));
         form.add(useConnectionPooling);
 
         PropertyModel<String> connectionsModel = new PropertyModel<String>(model, "maxConnections");
         final TextParamPanel maxConnections = new TextParamPanel("maxConnectionsPanel",
-                connectionsModel, new ResourceModel("AbstractWMSStorePage.maxConnections"), true,
+                connectionsModel, new ResourceModel("AbstractWMTSStorePage.maxConnections"), true,
                 new RangeValidator<Integer>(1, 128));
         maxConnections.setOutputMarkupId(true);
         maxConnections.setEnabled(useHttpConnectionPoolModel.getObject());
@@ -122,12 +119,12 @@ abstract class AbstractWMTSStorePage extends GeoServerSecuredPage {
         // connect timeout
         PropertyModel<Integer> connectTimeoutModel = new PropertyModel<Integer>(model, "connectTimeout");
         form.add(new TextParamPanel("connectTimeoutPanel", connectTimeoutModel, new ResourceModel(
-                "AbstractWMSStorePage.connectTimeout"), true, new RangeValidator<Integer>(1, 240)));
+                "AbstractWMTSStorePage.connectTimeout"), true, new RangeValidator<Integer>(1, 240)));
 
         // read timeout
         PropertyModel<Integer> readTimeoutModel = new PropertyModel<Integer>(model, "readTimeout");
         form.add(new TextParamPanel("readTimeoutPanel", readTimeoutModel, new ResourceModel(
-                "AbstractWMSStorePage.readTimeout"), true, new RangeValidator<Integer>(1, 360)));
+                "AbstractWMTSStorePage.readTimeout"), true, new RangeValidator<Integer>(1, 360)));
 
         // cancel/submit buttons
         form.add(new BookmarkablePageLink("cancel", StorePage.class));
