@@ -58,7 +58,7 @@ public class CatalogFactoryImpl implements CatalogFactory {
     
     @Override
     public WMTSStoreInfo createWebMapTileServer() {
-        return new WMTSStoreInfoImpl(catalog);
+        return (WMTSStoreInfo) new WMTSStoreInfoImpl(catalog);
     }
 
     public AttributeTypeInfo createAttribute() {

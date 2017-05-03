@@ -28,7 +28,7 @@ public class WMTSStoreNewPageTest extends GeoServerWicketTestSupport {
 
     @Before
     public void init() {
-        System.out.println("hi");
+        
     }
 
     private WMTSStoreNewPage startPage() {
