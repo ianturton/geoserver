@@ -37,6 +37,7 @@ import org.geoserver.web.CatalogIconFactory;
 import org.geoserver.web.ComponentAuthorizer;
 import org.geoserver.web.GeoServerSecuredPage;
 import org.geoserver.web.data.importer.WMSLayerImporterPage;
+import org.geoserver.web.data.importer.WMTSLayerImporterPage;
 import org.geoserver.web.data.resource.ResourceConfigurationPage;
 import org.geoserver.web.data.store.StoreListChoiceRenderer;
 import org.geoserver.web.data.store.StoreListModel;
@@ -70,6 +71,7 @@ public class NewLayerPage extends GeoServerSecuredPage {
     private WebMarkupContainer createCoverageViewContainer;
     private WebMarkupContainer createCascadedWFSStoredQueryContainer;
     private WebMarkupContainer createWMSLayerImportContainer;
+    private WebMarkupContainer createWMTSLayerImportContainer;
     
     public NewLayerPage() {
         this(null);
@@ -163,6 +165,11 @@ public class NewLayerPage extends GeoServerSecuredPage {
         createWMSLayerImportContainer.add(newWMSImportLink());
         selectLayersContainer.add(createWMSLayerImportContainer);
         
+        createWMTSLayerImportContainer = new WebMarkupContainer("createWMTSLayerImportContainer");
+        createWMTSLayerImportContainer.setVisible(false);
+        createWMTSLayerImportContainer.add(newWMTSImportLink());
+        selectLayersContainer.add(createWMTSLayerImportContainer);
+        
         // case where the store is selected, or we have just created new one
         if(storeId != null) {
             StoreInfo store = getCatalog().getStore(storeId, StoreInfo.class);
@@ -228,7 +235,16 @@ public class NewLayerPage extends GeoServerSecuredPage {
             }
         };
     }
-
+    Component newWMTSImportLink() {
+        return new AjaxLink<Void>("createWMTSImport") {
+            
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                PageParameters pp = new PageParameters().add("storeId", storeId);
+                setResponsePage(WMTSLayerImporterPage.class, pp);
+            }
+        };
+    }
     private DropDownChoice<StoreInfo> storesDropDown() {
         final DropDownChoice<StoreInfo> stores = new DropDownChoice<>("storesDropDown", new Model<StoreInfo>(),
                 new StoreListModel(), new StoreListChoiceRenderer());

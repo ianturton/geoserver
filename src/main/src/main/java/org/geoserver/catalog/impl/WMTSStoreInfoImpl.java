@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogVisitor;
+import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geotools.data.wms.WebMapServer;
 import org.geotools.data.wmts.WebMapTileServer;
@@ -100,7 +101,10 @@ public class WMTSStoreInfoImpl extends StoreInfoImpl implements WMTSStoreInfo {
     }
 
     public WebMapTileServer getWebMapTileServer(ProgressListener listener) throws IOException {
-        return getCatalog().getResourcePool().getWebMapTileServer((WMTSStoreInfo) this);
+        Catalog catalog2 = getCatalog();
+        ResourcePool resourcePool = catalog2.getResourcePool();
+        WebMapTileServer webMapTileServer = resourcePool.getWebMapTileServer((WMTSStoreInfo) this);
+        return webMapTileServer;
     }
 
     @Override

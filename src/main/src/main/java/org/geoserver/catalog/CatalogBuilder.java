@@ -215,7 +215,17 @@ public class CatalogBuilder {
     public void updateWMSLayer(WMSLayerInfo original, WMSLayerInfo update) {
         update(original, update, WMSLayerInfo.class);
     }
-
+    /**
+     * Updates a WMTS layer with the properties of another.
+     * 
+     * @param original
+     *            The wmts layer being updated.
+     * @param update
+     *            The wmts layer containing the new values.
+     */
+    public void updateWMTSLayer(WMTSLayerInfo original, WMTSLayerInfo update) {
+        update(original, update, WMTSLayerInfo.class);
+    }
     /**
      * Updates a layer with the properties of another.
      * 

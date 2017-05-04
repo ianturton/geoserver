@@ -239,6 +239,7 @@ public class ResourcePool {
         hintCoverageReaderCache = createHintCoverageReaderCache();
         
         wmsCache = createWmsCache();
+        wmtsCache = createWmtsCache();
         styleCache = createStyleCache();
 
         listeners = new CopyOnWriteArrayList<Listener>();
@@ -407,7 +408,9 @@ public class ResourcePool {
     protected Map<String, WebMapServer> createWmsCache() {
         return new WMSCache();
     }
-
+    protected Map<String, WebMapTileServer> createWmtsCache() {
+        return new WMTSCache();
+    }
     /**
      * Sets the size of the feature type cache.
      * <p>

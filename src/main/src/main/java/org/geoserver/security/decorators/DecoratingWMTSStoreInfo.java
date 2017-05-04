@@ -170,13 +170,13 @@ public class DecoratingWMTSStoreInfo extends AbstractDecorator<WMTSStoreInfo> im
 
     @Override
     public WebMapTileServer getWebMapTileServer(ProgressListener listener) throws IOException {
-        // TODO Auto-generated method stub
+       
         return delegate.getWebMapTileServer(listener);
     }
 
     @Override
     public WebMapServer getWebMapServer(ProgressListener listener) throws IOException {
-        // TODO Auto-generated method stub
+        // We don't know about WMS servers
         return null;
     }
 
