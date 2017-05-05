@@ -45,6 +45,8 @@ public final class MapLayerInfo {
     public static int TYPE_REMOTE_VECTOR = PublishedType.REMOTE.getCode();
 
     public static int TYPE_WMS = PublishedType.WMS.getCode();
+    
+    public static int TYPE_WMTS = PublishedType.WMTS.getCode();
 
     /**
      * The feature source for the remote WFS layer (see REMOVE_OWS_TYPE/URL in the SLD spec)

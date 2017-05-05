@@ -16,10 +16,10 @@ import org.opengis.util.ProgressListener;
  * @author Andrea Aime - OpenGeo
  * 
  */
-public interface WMTSStoreInfo extends WMSStoreInfo {
+public interface WMTSStoreInfo extends StoreInfo {
 
     /**
-     * Returns the underlying {@link WebMapServer}
+     * Returns the underlying {@link WebMapTileServer}
      * <p>
      * This method does I/O and is potentially blocking. The <tt>listener</tt> may be used to report
      * the progress of loading the datastore and also to report any errors or warnings that occur.

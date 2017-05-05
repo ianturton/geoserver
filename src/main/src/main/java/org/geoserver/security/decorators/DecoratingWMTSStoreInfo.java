@@ -174,10 +174,4 @@ public class DecoratingWMTSStoreInfo extends AbstractDecorator<WMTSStoreInfo> im
         return delegate.getWebMapTileServer(listener);
     }
 
-    @Override
-    public WebMapServer getWebMapServer(ProgressListener listener) throws IOException {
-        // We don't know about WMS servers
-        return null;
-    }
-
 }

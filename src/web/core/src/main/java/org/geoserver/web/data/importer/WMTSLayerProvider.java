@@ -58,7 +58,7 @@ public class WMTSLayerProvider extends GeoServerDataProvider<LayerResource> {
                 
                 CatalogBuilder builder = new CatalogBuilder(getCatalog());
                 builder.setStore(store);
-                List<Layer> layers = wmtsInfo.getWebMapServer(null).getCapabilities().getLayerList();
+                List<Layer> layers = wmtsInfo.getWebMapTileServer(null).getCapabilities().getLayerList();
                 for(Layer l : layers) {
                     if(l.getName() == null) {
                         continue;

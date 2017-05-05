@@ -404,6 +404,9 @@ public class ResourcePool {
     public Map<String, WebMapServer> getWmsCache() {
         return wmsCache;
     }
+    public Map<String, WebMapTileServer> getWmtsCache() {
+        return wmtsCache;
+    }
 
     protected Map<String, WebMapServer> createWmsCache() {
         return new WMSCache();
@@ -1781,6 +1784,44 @@ public class ResourcePool {
     }
 
     /**
+     * @param wmtsStoreInfoImpl
+     * @return
+     * @throws IOException 
+     */
+    public WebMapTileServer getWebMapTileServer(WMTSStoreInfo info) throws IOException {
+        WMTSStoreInfo expandedStore = (WMTSStoreInfo) clone(info, true);
+        
+        try {
+            EntityResolver entityResolver = getEntityResolver();
+            
+            String id = info.getId();
+            WebMapTileServer wmts = wmtsCache.get(id);
+            // if we have a hit but the resolver has been changed, clean and build again
+            if(wmts != null && wmts.getHints() != null && !Objects.equals(wmts.getHints().get(XMLHandlerHints.ENTITY_RESOLVER), entityResolver)) {
+                wmtsCache.remove(id);
+                wmts = null;
+            }
+            if (wmts == null) {
+                synchronized (wmtsCache) {
+                    wmts = (WebMapTileServer) wmtsCache.get(id);
+                    if (wmts == null) {
+                        String capabilitiesURL = expandedStore.getCapabilitiesURL();
+                        URL serverURL = new URL(capabilitiesURL);
+                        wmts = (WebMapTileServer) new WebMapTileServer(serverURL);
+                        wmtsCache.put(id, wmts);
+                    }
+                }
+            }
+    
+            return wmts;
+        } catch (IOException ioe) {
+            throw ioe;
+        } catch (Exception e) {
+            throw (IOException) new IOException().initCause(e);
+        }
+    }
+
+    /**
      * Returns the entity resolver from the {@link EntityResolverProvider}, or null if none is configured
      * @return
      */
@@ -1850,12 +1891,43 @@ public class ResourcePool {
     }
     
     /**
+     * @param wmtsLayerInfoImpl 
+     * @return
+     * @throws IOException 
+     */
+    public Layer getWMTSLayer(WMTSLayerInfo info) throws IOException {
+     // check which actual name we have to use
+        String name = info.getName();
+        if (info.getNativeName() != null) {
+            name = info.getNativeName();
+        }
+    
+        WMTSCapabilities caps = null;
+        
+        caps = info.getStore().getWebMapTileServer(null).getCapabilities();
+        
+        for (Layer layer : caps.getLayerList()) {
+            if (name.equals(layer.getName())) {
+                return layer;
+            }
+        }
+    
+        throw new IOException("Could not find layer " + info.getName()
+                + " in the server capabilitiles document");
+    }
+
+    /**
      * Clears the cached resource for a web map server
      */
     public void clear( WMSStoreInfo info ) {
         wmsCache.remove( info.getId() );
     }
-
+    /**
+     * Clears the cached resource for a web map server
+     */
+    public void clear( WMTSStoreInfo info ) {
+        wmtsCache.remove( info.getId() );
+    }
     /**
      * Returns a style resource, caching the result. Any associated images should
      * also be unpacked onto the local machine. ResourcePool will watch the style
@@ -2561,6 +2633,7 @@ public class ResourcePool {
         return target;
     }
     
+    
     public WMSStoreInfo clone(final WMSStoreInfo source, boolean allowEnvParametrization) {
         WMSStoreInfo target;
         try {
@@ -2593,6 +2666,38 @@ public class ResourcePool {
         return target;
     }
     
+    public WMTSStoreInfo clone(final WMTSStoreInfo source, boolean allowEnvParametrization) {
+        WMTSStoreInfo target;
+        try {
+            target = (WMTSStoreInfo) SerializationUtils.clone(source);
+            if (target instanceof StoreInfoImpl && target.getCatalog() == null) {
+                ((StoreInfoImpl)target).setCatalog(catalog);
+            }
+        } catch (Exception e) {
+            target = catalog.getFactory().createWebMapTileServer();
+            target.setDescription(source.getDescription());
+            target.setEnabled(source.isEnabled());
+            target.setName(source.getName());
+            target.setType(source.getType());
+            target.setWorkspace(source.getWorkspace());            
+        }
+        
+        setConnectionParameters(source, target);            
+
+        if (allowEnvParametrization) {
+            // Resolve GeoServer Environment placeholders
+            final GeoServerEnvironment gsEnvironment = GeoServerExtensions.bean(GeoServerEnvironment.class);
+            
+            if (gsEnvironment != null && GeoServerEnvironment.ALLOW_ENV_PARAMETRIZATION) {
+                target.setCapabilitiesURL((String) gsEnvironment.resolveValue(source.getCapabilitiesURL()));
+                target.setUsername((String) gsEnvironment.resolveValue(source.getUsername()));
+                target.setPassword((String) gsEnvironment.resolveValue(source.getPassword()));
+            }
+        }
+        
+        return target;
+    }
+
     /**
      * @param source
      * @param target
@@ -2607,6 +2712,20 @@ public class ResourcePool {
         target.setReadTimeout(source.getReadTimeout());
     }
 
+    /**
+     * @param source
+     * @param target
+     */
+    private void setConnectionParameters(final WMTSStoreInfo source, WMTSStoreInfo target) {
+        target.setCapabilitiesURL(source.getCapabilitiesURL());
+        target.setUsername(source.getUsername());
+        target.setPassword(source.getPassword());
+        target.setUseConnectionPooling(source.isUseConnectionPooling());
+        target.setMaxConnections(source.getMaxConnections());
+        target.setConnectTimeout(source.getConnectTimeout());
+        target.setReadTimeout(source.getReadTimeout());
+    }
+    
     /**
      * Retrieve the proper {@link CoverageInfo} object from the specified {@link CoverageStoreInfo} 
      * using the specified coverageName (which may be the native one in some cases).
@@ -2640,70 +2759,6 @@ public class ResourcePool {
             }
         }
         return info;
-    }
-
-    /**
-     * @param wmtsStoreInfoImpl
-     * @return
-     * @throws IOException 
-     */
-    public WebMapTileServer getWebMapTileServer(WMTSStoreInfo info) throws IOException {
-        WMTSStoreInfo expandedStore = (WMTSStoreInfo) clone(info, true);
-        
-        try {
-            EntityResolver entityResolver = getEntityResolver();
-            
-            String id = info.getId();
-            WebMapTileServer wmts = wmtsCache.get(id);
-            // if we have a hit but the resolver has been changed, clean and build again
-            if(wmts != null && wmts.getHints() != null && !Objects.equals(wmts.getHints().get(XMLHandlerHints.ENTITY_RESOLVER), entityResolver)) {
-                wmtsCache.remove(id);
-                wmts = null;
-            }
-            if (wmts == null) {
-                synchronized (wmtsCache) {
-                    wmts = (WebMapTileServer) wmtsCache.get(id);
-                    if (wmts == null) {
-                        String capabilitiesURL = expandedStore.getCapabilitiesURL();
-                        URL serverURL = new URL(capabilitiesURL);
-                        wmts = (WebMapTileServer) new WebMapTileServer(serverURL);
-                        wmtsCache.put(id, wmts);
-                    }
-                }
-            }
-
-            return wmts;
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (Exception e) {
-            throw (IOException) new IOException().initCause(e);
-        }
-    }
-
-    /**
-     * @param wmtsLayerInfoImpl 
-     * @return
-     * @throws IOException 
-     */
-    public Layer getWMTSLayer(WMTSLayerInfo info) throws IOException {
-     // check which actual name we have to use
-        String name = info.getName();
-        if (info.getNativeName() != null) {
-            name = info.getNativeName();
-        }
-
-        WMTSCapabilities caps = null;
-        
-        caps = info.getStore().getWebMapTileServer(null).getCapabilities();
-        
-        for (Layer layer : caps.getLayerList()) {
-            if (name.equals(layer.getName())) {
-                return layer;
-            }
-        }
-
-        throw new IOException("Could not find layer " + info.getName()
-                + " in the server capabilitiles document");
     }
 
 

@@ -12,10 +12,10 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.web.wicket.GeoServerDialog;
-import org.geotools.data.wms.WebMapServer;
+import org.geotools.data.wmts.WebMapTileServer;
 
 @SuppressWarnings("serial")
-public class WMTSStoreEditPage extends AbstractWMSStorePage {
+public class WMTSStoreEditPage extends AbstractWMTSStorePage {
     
     public static final String STORE_NAME = "storeName";
     public static final String WS_NAME = "wsName";
@@ -34,12 +34,12 @@ public class WMTSStoreEditPage extends AbstractWMSStorePage {
     /**
      * Creates a new edit page directly from a store object.
      */
-    public WMTSStoreEditPage(WMSStoreInfo store) {
+    public WMTSStoreEditPage(WMTSStoreInfo store) {
         initUI(store);
     }
 
     @Override
-    protected void onSave(WMSStoreInfo info, AjaxRequestTarget target)
+    protected void onSave(WMTSStoreInfo info, AjaxRequestTarget target)
             throws IllegalArgumentException {
         if(!info.isEnabled()) {
             doSaveStore(info);
@@ -50,8 +50,8 @@ public class WMTSStoreEditPage extends AbstractWMSStorePage {
                 // do not call info.getWebMapServer cause it ends up calling
                 // resourcepool.getWebMapServer with the unproxied instance (old values)
                 //info.getWebMapServer(null).getCapabilities();
-                WebMapServer webMapServer = getCatalog().getResourcePool().getWebMapServer(info);
-                webMapServer.getCapabilities();
+                WebMapTileServer wmts = getCatalog().getResourcePool().getWebMapTileServer(info);
+                wmts.getCapabilities();
                 doSaveStore(info);
             } catch(Exception e) {
                 confirmSaveOnConnectionFailure(info, target, e);
@@ -66,11 +66,11 @@ public class WMTSStoreEditPage extends AbstractWMSStorePage {
      * This method may be subclasses to provide custom save functionality.
      * </p>
      */
-    protected void doSaveStore(WMSStoreInfo info) {
+    protected void doSaveStore(WMTSStoreInfo info) {
         Catalog catalog = getCatalog();
 
         // Cloning into "expandedStore" through the super class "clone" method
-        WMSStoreInfo expandedStore = catalog.getResourcePool().clone(info, true); 
+        WMTSStoreInfo expandedStore = (WMTSStoreInfo) catalog.getResourcePool().clone(info, true); 
         
         getCatalog().validate(expandedStore, false).throwIfInvalid();
         
@@ -78,7 +78,7 @@ public class WMTSStoreEditPage extends AbstractWMSStorePage {
         doReturn(StorePage.class);
     }
 
-    private void confirmSaveOnConnectionFailure(final WMSStoreInfo info,
+    private void confirmSaveOnConnectionFailure(final WMTSStoreInfo info,
             final AjaxRequestTarget requestTarget, final Exception error) {
 
         getCatalog().getResourcePool().clear(info);
@@ -122,5 +122,7 @@ public class WMTSStoreEditPage extends AbstractWMSStorePage {
             }
         });
     }
+
+  
 
 }

@@ -31,7 +31,7 @@ public class WMTSLayerInfoImpl extends ResourceInfoImpl implements WMTSLayerInfo
     }
 
     public void accept(CatalogVisitor visitor) {
-        visitor.visit((Catalog) this);
+        visitor.visit( this);
     }
 
     @Override

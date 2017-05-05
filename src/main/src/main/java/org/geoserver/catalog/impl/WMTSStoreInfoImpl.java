@@ -97,7 +97,7 @@ public class WMTSStoreInfoImpl extends StoreInfoImpl implements WMTSStoreInfo {
     }
 
     public void accept(CatalogVisitor visitor) {
-        visitor.visit((Catalog) this);
+        visitor.visit( this);
     }
 
     public WebMapTileServer getWebMapTileServer(ProgressListener listener) throws IOException {
@@ -118,9 +118,5 @@ public class WMTSStoreInfoImpl extends StoreInfoImpl implements WMTSStoreInfo {
         getMetadata().put("useConnectionPooling", Boolean.valueOf(useHttpConnectionPooling));
     }
 
-    @Override
-    public WebMapServer getWebMapServer(ProgressListener listener) throws IOException {
-        // Oddly we know nothing about a WMS as we only deal in WMTS!
-        return null;
-    }
+    
 }

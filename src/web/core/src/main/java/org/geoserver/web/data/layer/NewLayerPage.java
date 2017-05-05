@@ -33,6 +33,8 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WMTSLayerInfo;
+import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.web.CatalogIconFactory;
 import org.geoserver.web.ComponentAuthorizer;
 import org.geoserver.web.GeoServerSecuredPage;
@@ -49,6 +51,7 @@ import org.geotools.data.DataAccess;
 import org.geotools.data.DataStore;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wms.WebMapServer;
+import org.geotools.data.wmts.WebMapTileServer;
 import org.geotools.jdbc.JDBCDataStore;
 
 /**
@@ -330,9 +333,19 @@ public class NewLayerPage extends GeoServerSecuredPage {
         }
 
         // reset to default first, to avoid the container being displayed if store is not a
+     // reset to default first, to avoid the container being displayed if store is not a
         // WMSStoreInfo
         createWMSLayerImportContainer.setVisible(false);
-        if (store instanceof WMSStoreInfo) {
+        // WMSStoreInfo
+        createWMTSLayerImportContainer.setVisible(false);
+        if (store instanceof WMTSStoreInfo) {
+            try {
+                WebMapTileServer wmts = ((WMTSStoreInfo) store).getWebMapTileServer(null);
+                createWMTSLayerImportContainer.setVisible(wmts != null);
+            } catch (IOException e) {
+                LOGGER.log(Level.FINEST, e.getMessage());
+            }
+        } else if (store instanceof WMSStoreInfo) {
             try {
                 WebMapServer wms = ((WMSStoreInfo) store).getWebMapServer(null);
                 createWMSLayerImportContainer.setVisible(wms != null);
@@ -362,6 +375,9 @@ public class NewLayerPage extends GeoServerSecuredPage {
         } else if(store instanceof WMSStoreInfo) {
             WMSStoreInfo wmsInfo = (WMSStoreInfo) store;
             expandedStore = getCatalog().getResourcePool().clone(wmsInfo, true);
+        } else if(store instanceof WMTSStoreInfo) {
+            WMTSStoreInfo wmsInfo = (WMTSStoreInfo) store;
+            expandedStore = getCatalog().getResourcePool().clone(wmsInfo, true);
         }
         
         // try to build from coverage store or data store
@@ -374,6 +390,9 @@ public class NewLayerPage extends GeoServerSecuredPage {
             } else if (expandedStore instanceof DataStoreInfo) {
                 FeatureTypeInfo fti = builder.buildFeatureType(resource.getName());
                 return builder.buildLayer(fti);
+            }  else if (expandedStore instanceof WMTSStoreInfo) {
+                WMTSLayerInfo wli = builder.buildWMTSLayer(resource.getLocalName());
+                return builder.buildLayer(wli);
             } else if (expandedStore instanceof WMSStoreInfo) {
                 WMSLayerInfo wli = builder.buildWMSLayer(resource.getLocalName());
                 return builder.buildLayer(wli);

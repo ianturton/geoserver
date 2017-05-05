@@ -1282,8 +1282,8 @@ public class CatalogBuilder {
     }
 
     WMTSLayerInfo buildWMTSLayer(StoreInfo store, String layerName) throws IOException {
-        if (store == null || !(store instanceof WMSStoreInfo)) {
-            throw new IllegalStateException("WMS store not set.");
+        if (store == null || !(store instanceof WMTSStoreInfo)) {
+            throw new IllegalStateException("WMTS store not set.");
         }
 
         WMTSLayerInfo wli = catalog.getFactory().createWMTSLayer();
@@ -1302,7 +1302,7 @@ public class CatalogBuilder {
         wli.setNamespace(namespace);
 
         Layer layer = wli.getWMTSLayer(null);
-
+        //TODO: handle axis order here ?
         // try to get the native SRS -> we use the bounding boxes, GeoServer will publish all of the
         // supported SRS in the root, if we use getSRS() we'll get them all
         for (String srs : layer.getBoundingBoxes().keySet()) {
@@ -1469,7 +1469,7 @@ public class CatalogBuilder {
      */
     public StyleInfo getDefaultStyle(ResourceInfo resource) throws IOException {
         // raster wise, only one style
-        if (resource instanceof CoverageInfo || resource instanceof WMSLayerInfo)
+        if (resource instanceof CoverageInfo || resource instanceof WMSLayerInfo || resource instanceof WMTSLayerInfo)
             return catalog.getStyleByName(StyleInfo.DEFAULT_RASTER);
 
         // for vectors we depend on the the nature of the default geometry
@@ -1513,6 +1513,8 @@ public class CatalogBuilder {
             layer.setType(PublishedType.VECTOR);
         } else if (layer.getResource() instanceof CoverageInfo) {
             layer.setType(PublishedType.RASTER);
+        } else if (layer.getResource() instanceof WMTSLayerInfo) {
+            layer.setType(PublishedType.WMTS);
         } else if (layer.getResource() instanceof WMSLayerInfo) {
             layer.setType(PublishedType.WMS);
         }

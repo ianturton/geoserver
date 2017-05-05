@@ -49,6 +49,8 @@ import org.geoserver.catalog.PublishedType;
 import org.geoserver.catalog.ValidationResult;
 import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WMTSLayerInfo;
+import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.catalog.event.CatalogEvent;
@@ -634,6 +636,8 @@ public class CatalogImpl implements Catalog {
                 layer.setType( PublishedType.VECTOR );
             } else if ( layer.getResource() instanceof CoverageInfo ) {
                 layer.setType( PublishedType.RASTER );
+            } else if ( layer.getResource() instanceof WMTSLayerInfo ) {
+                layer.setType( PublishedType.WMTS );
             } else if ( layer.getResource() instanceof WMSLayerInfo ) {
                 layer.setType( PublishedType.WMS );
             } else {
@@ -1728,6 +1732,10 @@ public class CatalogImpl implements Catalog {
         public void visit(WMSStoreInfo wmsStore) {
             validator.validate(wmsStore, isNew);
         }
+        
+        public void visit(WMTSStoreInfo wmtsStore) {
+            validator.validate(wmtsStore, isNew);
+        }
 
         public void visit(FeatureTypeInfo featureType) {
             validator.validate(featureType, isNew);
@@ -1751,6 +1759,10 @@ public class CatalogImpl implements Catalog {
 
         public void visit(WMSLayerInfo wmsLayer) {
             validator.validate(wmsLayer, isNew);
+        }
+        @Override
+        public void visit(WMTSLayerInfo wmtsLayer) {
+            validator.validate(wmtsLayer, isNew);
         }
     }
     

@@ -19,6 +19,7 @@ import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
 import org.geoserver.catalog.CatalogBuilder;
+import org.geoserver.catalog.ValidationResult;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.platform.GeoServerEnvironment;
 import org.geoserver.platform.GeoServerExtensions;
@@ -69,7 +70,8 @@ public class WMTSStoreNewPage extends AbstractWMTSStorePage {
         // Still, be cautious and wrap it in a try/catch block so the page does not blow up
         try {
             // GeoServer Env substitution; validate first
-            getCatalog().validate(expandedStore, false).throwIfInvalid();
+            ValidationResult validate = getCatalog().validate(expandedStore, false);
+            validate.throwIfInvalid();
             
             // GeoServer Env substitution; force to *AVOID* resolving env placeholders...
             savedStore = (WMTSStoreInfo) getCatalog().getResourcePool().clone(info, false);

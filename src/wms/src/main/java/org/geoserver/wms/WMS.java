@@ -1647,7 +1647,7 @@ public class WMS implements ApplicationContextAware {
      * @return
      */
     public static boolean isWmsExposable(LayerInfo lyr) {
-        if (lyr.getType() == PublishedType.RASTER || lyr.getType() == PublishedType.WMS) {
+        if (lyr.getType() == PublishedType.RASTER || lyr.getType() == PublishedType.WMS || lyr.getType() == PublishedType.WMTS) {
             return true;
         }
 

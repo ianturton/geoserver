@@ -65,6 +65,7 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.AttributeTypeInfoImpl;
 import org.geoserver.catalog.impl.AttributionInfoImpl;
@@ -224,6 +225,9 @@ public class XStreamPersister {
         }
 
         protected void postEncodeWMSStore(WMSStoreInfo store, HierarchicalStreamWriter writer,  MarshallingContext context) {
+            
+        }
+        protected void postEncodeWMTSStore(WMTSStoreInfo store, HierarchicalStreamWriter writer,  MarshallingContext context) {
             
         }
     }
@@ -1613,7 +1617,9 @@ public class XStreamPersister {
                 callback.postEncodeCoverageStore( (CoverageStoreInfo) store, writer, context );
             } else if (store instanceof WMSStoreInfo){
                 callback.postEncodeWMSStore( (WMSStoreInfo) store, writer, context );
-            } else {
+            } else if (store instanceof WMTSStoreInfo){
+                callback.postEncodeWMTSStore( (WMTSStoreInfo) store, writer, context );
+            }else {
                 throw new IllegalArgumentException("Unknown store type: "
                         + (store == null ? "null" : store.getClass().getName()));
             }

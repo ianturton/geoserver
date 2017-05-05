@@ -75,7 +75,7 @@ public class CatalogFactoryImpl implements CatalogFactory {
 
     @Override
     public WMTSLayerInfo createWMTSLayer() {
-        return (WMTSLayerInfo) new WMSLayerInfoImpl(catalog);
+        return new WMTSLayerInfoImpl(catalog);
     }
 
     public AttributionInfo createAttribution() {

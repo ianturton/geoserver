@@ -2313,6 +2313,7 @@ public class GWC implements DisposableBean, InitializingBean, ApplicationContext
             break;
         case RASTER: // local raster layer
         case WMS: // remote WMS raster
+        case WMTS: // remote WMTS raster
             formatsKey = "formats.raster";
             break;
         case GROUP:

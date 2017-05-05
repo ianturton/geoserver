@@ -1469,16 +1469,6 @@
       </dependencies>
     </profile>
     <profile>
-      <id>wmts</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.community</groupId>
-          <artifactId>gs-wmts</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
       <id>onelogin</id>
       <dependencies>
         <dependency>

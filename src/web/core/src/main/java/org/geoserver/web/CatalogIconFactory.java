@@ -124,7 +124,9 @@ public class CatalogIconFactory implements Serializable {
             }
         } else if(info.getType() == PublishedType.WMS) {
             return MAP_ICON;
-        } else {
+        } else if(info.getType() == PublishedType.WMTS) {
+            return MAP_ICON;
+        }else {
             return UNKNOWN_ICON;
         }
     }
@@ -191,7 +193,9 @@ public class CatalogIconFactory implements Serializable {
             }
         } else if (storeInfo instanceof WMSStoreInfo) {
             return MAP_STORE_ICON;
-        } else {
+        } else if (storeInfo instanceof WMTSStoreInfo) {
+            return MAP_STORE_ICON;
+        }else {
             throw new IllegalStateException(storeInfo.getClass().getName());
         }
         
