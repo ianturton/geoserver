@@ -51,6 +51,7 @@ import org.geoserver.catalog.PublishedType;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WMSLayerInfo;
+import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.GeoServer;
@@ -935,7 +936,7 @@ public class GetCapabilitiesTransformer extends TransformerBase {
             // handle DataURLs
             handleDataList(layer.getResource().getDataLinks());
 
-            if (layer.getResource() instanceof WMSLayerInfo) {
+            if (layer.getResource() instanceof WMSLayerInfo || layer.getResource() instanceof WMTSLayerInfo) {
                 // do nothing for the moment, we may want to list the set of cascaded named styles
                 // in the future (when we add support for that)
             } else {

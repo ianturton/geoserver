@@ -21,6 +21,7 @@ import org.geoserver.catalog.PublishedType;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.web.data.resource.DataStorePanelInfo;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.data.DataAccessFactory;

@@ -530,6 +530,10 @@ public abstract class GeoServerLoader {
                 if(Resources.exists(f)) {
                     return new StoreContents(f, f.getContents());
                 }
+                f = sd.get("wmtsstore.xml");
+                if(Resources.exists(f)) {
+                    return new StoreContents(f, f.getContents());
+                }
                 if(!isConfigDirectory(sd)) {
                     LOGGER.warning( "Ignoring store directory '" + sd.name() +  "'");
                 }
@@ -551,7 +555,9 @@ public abstract class GeoServerLoader {
                             loadCoverageStore(storeContents, catalog, xp);
                         } else if ("wmsstore.xml".equals(resourceName)) {
                             loadWmsStore(storeContents, catalog, xp);
-                        } else if (!isConfigDirectory(storeContents.resource)) {
+                        } else if ("wmtsstore.xml".equals(resourceName)) {
+                            loadWmtsStore(storeContents, catalog, xp);
+                        }else if (!isConfigDirectory(storeContents.resource)) {
                             LOGGER.warning("Ignoring store directory '"
                                     + storeContents.resource.name() + "'");
                             continue;

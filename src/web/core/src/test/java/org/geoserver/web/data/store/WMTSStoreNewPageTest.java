@@ -12,7 +12,6 @@ import java.net.URL;
 import org.apache.wicket.Component;
 import org.apache.wicket.util.tester.FormTester;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.web.GeoServerWicketTestSupport;
 import org.geoserver.web.data.store.panel.WorkspacePanel;
