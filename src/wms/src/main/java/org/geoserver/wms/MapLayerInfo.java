@@ -13,6 +13,7 @@ import java.util.List;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StyleInfo;
@@ -275,7 +276,11 @@ public final class MapLayerInfo {
             return false;
         }
         ResourceInfo resource = layerInfo.getResource();
-        Boolean cachingEnabled = resource.getMetadata().get(ResourceInfo.CACHING_ENABLED, Boolean.class);
+        MetadataMap metadata = resource.getMetadata();
+        Boolean cachingEnabled = null;
+        if(metadata!=null) {
+            cachingEnabled = metadata.get(ResourceInfo.CACHING_ENABLED, Boolean.class);
+        }
         return cachingEnabled == null ? false : cachingEnabled.booleanValue();
     }
 

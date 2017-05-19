@@ -25,6 +25,7 @@ import org.geotools.data.simple.SimpleFeatureLocking;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.data.wms.WebMapServer;
+import org.geotools.data.wmts.WebMapTileServer;
 
 
 /**
@@ -131,6 +132,13 @@ public class DefaultSecureDataFactory implements SecuredObjectFactory {
                 return new SecuredWebMapServer((WebMapServer) object);
             } catch(Exception e) {
                 throw new RuntimeException("Unexpected error wrapping the web map server", e);
+            }
+        }
+        if(WebMapTileServer.class.isAssignableFrom(clazz)) {
+            try {
+                return new SecuredWebMapTileServer((WebMapTileServer) object);
+            } catch(Exception e) {
+                throw new RuntimeException("Unexpected error wrapping the web map tile server", e);
             }
         }
 
