@@ -46,7 +46,7 @@ public class SecuredWebMapTileServer extends WebMapTileServer {
     WebMapTileServer delegate;
 
     public SecuredWebMapTileServer(WebMapTileServer delegate) throws IOException, ServiceException {
-        super(delegate.getCapabilities());
+        super(delegate);
         this.delegate = delegate;
     }
     
@@ -74,7 +74,11 @@ public class SecuredWebMapTileServer extends WebMapTileServer {
 
     public GetCapabilitiesResponse issueRequest(GetCapabilitiesRequest request) throws IOException,
             ServiceException {
-        return delegate.issueRequest(request);
+        if(delegate!=null) {
+            return delegate.issueRequest(request);
+        }else {
+            return null;
+        }
     }
 
     public GetFeatureInfoResponse issueRequest(GetFeatureInfoRequest request) {

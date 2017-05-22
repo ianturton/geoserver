@@ -55,7 +55,8 @@ public class DefaultSecureDataFactory implements SecuredObjectFactory {
                 || GridCoverage2DReader.class.isAssignableFrom(clazz)
                 || StructuredGridCoverage2DReader.class.isAssignableFrom(clazz)
                 || AbstractGridFormat.class.isAssignableFrom(clazz)
-                || WebMapServer.class.isAssignableFrom(clazz);
+                || WebMapServer.class.isAssignableFrom(clazz)
+                || WebMapTileServer.class.isAssignableFrom(clazz);
     }
 
     public Object secure(Object object, WrapperPolicy policy) {
