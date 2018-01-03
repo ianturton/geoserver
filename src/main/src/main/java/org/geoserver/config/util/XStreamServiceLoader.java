@@ -9,6 +9,7 @@ import java.io.BufferedInputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.config.GeoServer;
@@ -18,6 +19,7 @@ import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resources;
+import org.geotools.util.logging.Logging;
 
 /**
  * Service loader which loads and saves a service configuration with xstream.
@@ -26,7 +28,7 @@ import org.geoserver.platform.resource.Resources;
  *
  */
 public abstract class XStreamServiceLoader<T extends ServiceInfo> implements ServiceLoader<T> {
-    
+    static final Logger LOGGER = Logging.getLogger(XStreamServiceLoader.class);
     GeoServerResourceLoader resourceLoader;
     String filenameBase;
     XStreamPersisterFactory xpf = new XStreamPersisterFactory();
@@ -57,7 +59,15 @@ public abstract class XStreamServiceLoader<T extends ServiceInfo> implements Ser
             try (BufferedInputStream in = new BufferedInputStream(file.in())) {
                 XStreamPersister xp = xpf.createXMLPersister();
                 initXStreamPersister(xp, gs);
-                return initialize( xp.load( in, getServiceClass() ) );
+                T load = xp.load(in, getServiceClass());
+                if (load != null) {
+                    return initialize(load);
+                } else {
+                    LOGGER.warning("Failed to load "+file+" continuing with a default service");
+                    // create an 'empty' object
+                    ServiceInfo service = createServiceFromScratch(gs);
+                    return initialize((T) service);
+                }
             }
         }
         else {
